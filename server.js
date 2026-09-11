@@ -17,7 +17,7 @@ app.get('/', (req, res) => {
         skills: p.skills ? p.skills.split(',').map(s => s.trim()) : [],
         socialLinks: p.social_links ? JSON.parse(p.social_links) : {}
     }));
-    res.render('index', { profiles: formattedProfiles, newProfile: null });
+    res.render('form', { profiles: formattedProfiles, newProfile: null });
 });
 
 app.post('/generate', (req, res) => {
@@ -42,3 +42,8 @@ app.post('/generate', (req, res) => {
 });
 app.listen(PORT, '0.0.0.0', () => console.log(`Server running at port ${PORT}`));
 
+const path = require('path');
+
+// Bad: res.sendFile('./public/index.html');
+// Good:
+res.sendFile(path.join(__dirname, 'public', 'index.html')); 
