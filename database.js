@@ -1,19 +1,28 @@
 const path = require('path');
-const Database = require('better-sqlite3');
+const sqlite3 = require('sqlite3');
+const { open } = require('sqlite');
 
-// Fix: Use an absolute path so Render can locate the database file reliably
-const db = new Database(path.join(__dirname, 'profiles.db'));
+async function initializeDatabase() {
+  // Open the SQLite database file using absolute paths for Render
+  const db = await open({
+    filename: path.join(__dirname, 'profiles.db'),
+    driver: sqlite3.Database
+  });
 
-// Automatically create the profiles table if it does not exist
-db.prepare(`
-CREATE TABLE IF NOT EXISTS profiles (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    bio TEXT,
-    skills TEXT,
-    social_links TEXT
-)
-`).run();
+  // Create the profiles table if it doesn't exist
+  await db.exec(`
+        CREATE TABLE IF NOT EXISTS profiles (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            bio TEXT,
+            skills TEXT,
+            social_links TEXT
+        )
+    `);
 
-// CRITICAL FIX: Export the db instance so server.js can use it!
-module.exports = db;
+  console.log("✅ SQLite Database initialized successfully!");
+  return db;
+}
+
+// Export the initialization function
+module.exports = initializeDatabase;
